@@ -1,0 +1,127 @@
+table {
+    border-collapse: collapse;
+    /**设置表格边框的样式，此时会合并边框**/
+    border-spacing: 0;
+}
+
+.cat_table {
+    border: 1px solid #dcdcdc;
+}
+
+.mt10 {
+    margin-top: 10px !important;
+}
+
+.cat_table th,
+.cat_table td {
+    text-align: center;
+    border-right: 1px solid rgb(220, 220, 220);
+    border-bottom: 1px solid rgb(220, 220, 220);
+    font: 12px/30px 微软雅黑;
+}
+
+.cat_table th {
+    background: #f5f5f5;
+}
+
+.cat_table_hover tr:hover {
+    background: #F7FBFF;
+}
+
+.cat_table_bg {
+    background: #f5f5f5;
+}
+
+.cat_table .choose_tr {
+    background: #8abcdac7;
+}
+
+.cat_table .choose_tr:hover {
+    background: #8abcdac7;
+}
+
+/**  分页css  **/
+.mt10 {
+    margin-top: 10px !important;
+}
+
+.fr {
+    float: right !important;
+}
+
+ul,
+ol,
+li {
+    list-style: none;
+}
+
+.paging span {
+    font: 12px/30px "微软雅黑";
+    margin-right: 10px;
+}
+
+.fl {
+    float: left !important;
+}
+
+.paging li.first-child {
+    border-radius: 2px 0 0 2px;
+}
+
+.paging li.last-child {
+    border-radius: 0 2px 2px 0;
+    border-right: 1px solid #e1e1e1;
+}
+
+.paging li {
+    float: left;
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-right: 0;
+    height: 30px;
+    font: 12px/30px "微软雅黑";
+}
+
+.paging li a,
+.paging li.slh {
+    color: #666;
+    padding: 0 10px;
+    text-align: center;
+    display: block;
+}
+
+a,
+a img,
+button {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.mt5 {
+    margin-top: 5px !important;
+}
+
+img,
+input,
+select,
+button,
+textarea {
+    border: 0;
+    vertical-align: middle;
+}
+
+.plr5 {
+    padding: 0 5px;
+}
+
+.inp-page {
+    height: 18px;
+    border: 1px solid #dcdcdc;
+    width: 30px;
+    font: 12px/18px "微软雅黑";
+    text-align: center;
+}
+.paging li a:hover, .paging li a.hover {
+    background: #478ce7;
+    color: #fff;
+}

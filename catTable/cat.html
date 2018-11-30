@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>catTableDemo</title>
+    <link type="text/css" rel="stylesheet" href="./catTable.css" />
+    <script type="text/javascript" src="./jquery-1.12.1.min.js"></script>
+    <script type="text/javascript" src="./catTable.js"></script>
+    <script type="text/javascript" src="./mock.js"></script>
+    <style>
+        .gy-btn {
+            min-width: 74px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            color: #fff;
+        }
+
+        .blueBtn:hover {
+            border-color: #4284D7;
+        }
+
+        .ml10 {
+            margin-left: 10px !important;
+        }
+
+        .blueBtn {
+            display: inline-block;
+            width: 90px;
+            height: 33px;
+            text-align: center;
+            color: rgb(66, 132, 215) !important;
+            font: 14px/33px 微软雅黑;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(115, 174, 248);
+            border-image: initial;
+            background: rgb(247, 251, 255);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">catTable例子</em>
+        <div class="clear"></div>
+    </h3>
+    <div id="catTable"></div>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">例子代码</em>
+    </h3>
+    <div style="border: 1px solid #eee;padding:8px;">
+        <div><code>var cat = $('#catTable').catTable({</code></div>
+        <div>&nbsp;&nbsp;<code>data: queryFromServer,</code><code style="color:#4CAF50 !important;">//方法从mock.js中来，模拟从服务器获取数据</code></div>
+        <div>&nbsp;&nbsp;<code>thead: head,</code></div>
+        <div>&nbsp;&nbsp;<code>thField: ['display1', 'id'],</code></div>
+        <div>&nbsp;&nbsp;<code>thStyle: {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>style: 'background:#f5f5f5'</code></div>
+        <div>&nbsp;&nbsp;<code>},</code></div>
+        <div>&nbsp;&nbsp;<code>dataFrom:'Server',</code></div>
+        <div>&nbsp;&nbsp;<code>param:{</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>'a':1,</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>'b':2</code></div>
+        <div>&nbsp;&nbsp;&nbsp;<code>},</code></div>
+        <div>&nbsp;&nbsp;<code>total:100</code></div>
+        <div><code>});</code></div>
+    </div>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">参数介绍</em>
+    </h3>
+
+    <div id="paramIntroduce"></div>
+
+    <script>
+        $('#paramIntroduce').catTable({
+            thead: [{
+                'name': '参数',
+                'id': 'name'
+            }, {
+                'name': '介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'dataFrom',
+                'desc': '数据来源的方式；1.Local 表示从传入的data中来，2.Server 表示从服务器来；默认 Local '
+            }, {
+                'name': 'data',
+                'desc': "数据，形式为对象数组，数组中一个对象表示一行；当dataFrom == 'Local'的时候，data必须是一个方法，该方法有唯一形参。"
+            }, {
+                'name': 'param',
+                'desc': "参数，当dataFrom为Server的时候使用，会被传入data的方法中，即唯一形参表示的值"
+            }, {
+                'name': 'pageNumber',
+                'desc': "从哪一页开始；初始化为0，表示第一页"
+            }, {
+                'name': 'pageSize',
+                'desc': "一页显示的数据数量，默认为10"
+            }, {
+                'name': 'thead',
+                'desc': "表格的头，数组形式，数组可以是字符串数组，也可以是对象数组"
+            }, {
+                'name': 'thField',
+                'desc': "字符串数组，只能有两个值。当thead为字符串数组时无用，可以不设置；当为thead为对象数组的时候有用。例子：thField:['display','field']，则此时在thead对象数组中每一个对象的display属性将用于渲染为表格头的文字展示，id属性的值将被依次记录(其值就是数据中的字段名)，用于数据渲染时候的取值的顺序。默认为:['name', 'id']"
+            }, {
+                'name': 'thStyle',
+                'desc': '表格头属性的添加；可以是对象，表示所有头全都用他；可以使数组分别渲染。'
+            }, {
+                'name': 'total',
+                'desc': '数据的条数，用于页脚的展示。当dataForm为Local的时候，total自动获取data的长度作为值；从服务器获取时，必须赋值。'
+            }, {
+                'name': 'showFooter',
+                'desc': '是否展示页脚，默认为true。'
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">提供的方法(绑定在返回的实例上)</em>
+    </h3>
+
+    <div id="function"></div>
+
+
+    <script>
+        $('#function').catTable({
+            thead: [{
+                'name': '方法名',
+                'id': 'name'
+            }, {
+                'name': '方法介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'setInitParam()',
+                'desc': '重新设置初始化param'
+            }, {
+                'name': 'reloadTable(p)',
+                'desc': "传入p 表示回到确定的某一页(pageNumber+1为真实的页数),不传表示回到首页"
+            }, {
+                'name': 'setPageSize()',
+                'desc': "重新设置pageSize"
+            }, {
+                'name': 'setTotal()',
+                'desc': "重新设置total"
+            }, {
+                'name': 'getCurPageNum()',
+                'desc': "获取当前的pageNumber，实际页数为pageNumber+1"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">下载catTable</em>
+    </h3>
+    <div>
+        <a class="gy-btn blueBtn ml10 fl" href="./catTable.zip">下载</a>
+        <div style="clear:both;"></div>
+    </div>
+
+
+    <div style="margin-bottom: 36px;"></div>
+    <script>
+        var cat = $('#catTable').catTable({
+            data: queryFromServer, //data,//queryFromServer,
+            thead: head,
+            thField: ['display1', 'id'],
+            thStyle: {
+                style: 'background:#f5f5f5'
+            },
+            dataFrom: 'Server',
+            param: {
+                'a': 1,
+                'b': 2
+            },
+            total: 100
+
+        });
+    </script>
+</body>
+
+</html>
