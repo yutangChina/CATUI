@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>catStepDemo</title>
+    <link type="text/css" rel="stylesheet" href="./catStep.css" />
+    <link type="text/css" rel="stylesheet" href="../catTable/catTable.css" />
+    <script type="text/javascript" src="./jquery-1.12.1.min.js"></script>
+    <script type="text/javascript" src="./catStep.js"></script>
+    <script type="text/javascript" src="../catTable/catTable.js"></script>
+    <script type="text/javascript" src="./catStep.js"></script>
+    <style>
+        .gy-btn {
+            min-width: 74px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            color: #fff;
+        }
+
+        .blueBtn:hover {
+            border-color: #4284D7;
+        }
+
+        .ml10 {
+            margin-left: 10px !important;
+        }
+
+        .blueBtn {
+            display: inline-block;
+            width: 90px;
+            height: 33px;
+            text-align: center;
+            color: rgb(66, 132, 215) !important;
+            font: 14px/33px 微软雅黑;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(115, 174, 248);
+            border-image: initial;
+            background: rgb(247, 251, 255);
+            border-radius: 4px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">catStep例子</em>
+        <div class="clear"></div>
+    </h3>
+    <div id="catStep" style="margin-bottom: 8px;">
+    </div>
+    <div>
+        <a class="gy-btn blueBtn fl" style="margin-left: 0px;" onclick="previous()">上一步</a>
+        <a class="gy-btn blueBtn ml10 fl" onclick="next()">下一步</a>
+        <div class="cat-step-clear"></div>
+    </div>
+
+    <script>
+        var catStep = $('#catStep').catStep({
+            steps: [{
+                value: 'step1',
+                title: 'step1'
+            }, {
+                value: 'step2',
+                title: 'step2'
+            }, {
+                value: 'step3',
+                title: 'step3'
+            }, {
+                value: 'step4',
+                title: 'step4'
+            }, {
+                value: 'step5',
+                title: 'step5',
+                choose: true
+            }],
+            canClickStep: true,
+            showStepNum: false,
+            afterClick: function (p1, p2) {
+                $(p2).html(p1.title);
+            }
+        });
+
+        function previous() {
+            catStep.previousStep();
+        }
+
+        function next() {
+            catStep.nextStep();
+        }
+    </script>
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">例子代码</em>
+    </h3>
+    <div style="border: 1px solid #eee;padding:8px;">
+        <div><code>var cat = $('#catTable').catTable({</code></div>
+        <div>&nbsp;&nbsp;<code>steps: [{</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'step1',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: 'step1'</code></div>
+        <div>&nbsp;&nbsp;<code>}, {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'step2',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: 'step2'</code></div>
+        <div>&nbsp;&nbsp;<code>}, {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'step3',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: 'step3'</code></div>
+        <div>&nbsp;&nbsp;<code>}, {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'step4',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: 'step4'</code></div>
+        <div>&nbsp;&nbsp;<code>}, {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'step5',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: 'step5',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>choose: true</code></div>
+        <div>&nbsp;&nbsp;<code>}],</code></div>
+        <div>&nbsp;&nbsp;<code>canClickStep: true,</code></div>
+        <div>&nbsp;&nbsp;<code>showStepNum: false,</code></div>
+        <div>&nbsp;&nbsp;<code>afterClick: function (p1, p2) {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>$(p2).html(p1.title);</code></div>
+        <div>&nbsp;&nbsp;<code>}</code></div>
+        <div><code>});</code></div>
+    </div>
+
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">参数介绍</em>
+    </h3>
+
+    <div id="paramIntroduce"></div>
+
+    <script>
+        $('#paramIntroduce').catTable({
+            thead: [{
+                'name': '参数',
+                'id': 'name'
+            }, {
+                'name': '介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'steps',
+                'desc': "步骤的数据数组；例子：[{title:'111',value:'1111',icon:'',choose:true}]，title是展示在步骤条上的文字；value是步骤的唯一标识；icon是html字符串，用于添加图标；choose是是否选中该步骤；title，value必须拥有。"
+            }, {
+                'name': 'canClickStep',
+                'desc': "是否可以点击生成的步骤条 默认为true"
+            }, {
+                'name': 'showStepNum',
+                'desc': "是否显示数字，在title加上数字"
+            }, {
+                'name': 'afterClick',
+                'desc': "步骤进行后启动的方法，如果开始初始化时，steps里面有choose为true的选项也调用一次该方法。该参数必须是方法，会传入两个形参，第一个是steps里面的该选中步骤的值，第二个是显示的div HTMLElement对象。"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">提供的方法(绑定在返回的实例上)</em>
+    </h3>
+
+    <div id="function"></div>
+
+
+    <script>
+        $('#function').catTable({
+            thead: [{
+                'name': '方法名',
+                'id': 'name'
+            }, {
+                'name': '方法介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'nextStep()',
+                'desc': '下一步'
+            }, {
+                'name': 'previousStep()',
+                'desc': "上一步"
+            }, {
+                'name': 'getCurrentStep()',
+                'desc': "获取当前步骤的信息"
+            }, {
+                'name': 'getCurrentDiv()',
+                'desc': "获取当前步骤的div"
+            }, {
+                'name': 'setStepTo(p)',
+                'desc': "设置跳转到哪个step，参数p为非负整数"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">下载catStep</em>
+    </h3>
+    <div>
+        <a class="gy-btn blueBtn ml10 fl" href="./catStep.zip">下载</a>
+        <div style="clear:both;"></div>
+    </div>
+    <div style="margin-bottom: 36px;"></div>
+</body>
+
+</html>
