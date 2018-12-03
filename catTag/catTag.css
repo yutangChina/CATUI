@@ -1,0 +1,33 @@
+
+ul, ol, li {
+    list-style: none;
+}
+.cat-tag{
+    height: 30px;
+    border-bottom: 1px solid #dcdcdc;
+    padding: 0px;
+}
+
+.cat-tag li.cat-tag-hover {
+    background: #4284d7;
+    color: #fff;
+}
+.cat-tag li {
+    float: left;
+    min-width: 50px;
+    margin-right: 10px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0px 20px;
+    font: 12px/30px 微软雅黑;
+    background: rgb(245, 245, 245);
+    border-radius: 4px 4px 0px 0px;
+}
+.cat-tag-clear {
+    clear: both;
+    height: 0px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    font-size: 0;
+}

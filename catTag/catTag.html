@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>catTag</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="./catTag.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../catTable/catTable.css" />
+
+    <script src="./jquery-1.12.1.min.js"></script>
+    <script src="./catTag.js"></script>
+    <script src="../catTable/catTable.js"></script>
+    <style>
+        .gy-btn {
+            min-width: 74px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            color: #fff;
+        }
+
+        .blueBtn:hover {
+            border-color: #4284D7;
+        }
+
+        .ml10 {
+            margin-left: 10px !important;
+        }
+
+        .blueBtn {
+            display: inline-block;
+            width: 90px;
+            height: 33px;
+            text-align: center;
+            color: rgb(66, 132, 215) !important;
+            font: 14px/33px 微软雅黑;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(115, 174, 248);
+            border-image: initial;
+            background: rgb(247, 251, 255);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">catTag例子</em>
+        <div class="clear"></div>
+    </h3>
+    <div id="catTag">
+    </div>
+    <script>
+        var catTag = $('#catTag').catTag({
+            tags: [{
+                title: 'tag1',
+                value: '1',
+                choose: true
+            }, {
+                title: 'tag2',
+                value: '2',
+                choose: false
+            }, {
+                title: 'tag3',
+                value: '3',
+                choose: false
+            }],
+            afterClick: function (p1, p2) {
+                $(p2).html(p1.title);
+            }
+        });
+    </script>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">例子代码</em>
+    </h3>
+    <div style="border: 1px solid #eee;padding:8px;">
+        <div><code>var catTag = $('#catTag').catTag({</code></div>
+        <div>&nbsp;&nbsp;<code>tags: [{</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'tag1',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: '1',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>choose: true</code></div>
+        <div>&nbsp;&nbsp;<code>}, {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'tag2',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: '2'</code></div>
+        <div>&nbsp;&nbsp;<code>}, {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>value: 'tag3',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>title: '3'</code></div>
+        <div>&nbsp;&nbsp;<code>}],</code></div>
+        <div>&nbsp;&nbsp;<code>afterClick: function (p1, p2) {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>$(p2).html(p1.title);</code></div>
+        <div>&nbsp;&nbsp;<code>}</code></div>
+        <div><code>});</code></div>
+    </div>
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">参数介绍</em>
+    </h3>
+
+    <div id="paramIntroduce"></div>
+
+    <script>
+        $('#paramIntroduce').catTable({
+            thead: [{
+                'name': '参数',
+                'id': 'name'
+            }, {
+                'name': '介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'tags',
+                'desc': "步骤的数据数组；例子：[{title:'111',value:'1111',icon:'',choose:true}]，title是展示在步骤条上的文字；value是步骤的唯一标识；icon是html字符串，用于添加图标；choose是是否选中该步骤；title，value必须拥有。choose只能一个或以下是true"
+            }, {
+                'name': 'afterClick',
+                'desc': "步骤进行后启动的方法，如果开始初始化时，tags里面有choose为true的选项也调用一次该方法。该参数必须是方法，会传入两个形参，第一个是tags里面的该选中步骤的值，第二个是显示的div HTMLElement对象。"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">提供的方法(绑定在返回的实例上)</em>
+    </h3>
+
+    <div id="function"></div>
+
+
+    <script>
+        $('#function').catTable({
+            thead: [{
+                'name': '方法名',
+                'id': 'name'
+            }, {
+                'name': '方法介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'getCurrentTag()',
+                'desc': "获取当前步骤的信息"
+            }, {
+                'name': 'getCurrentDiv()',
+                'desc': "获取当前步骤的div"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+    <div style="margin-bottom: 36px;"></div>
+
+</body>
+
+</html>
