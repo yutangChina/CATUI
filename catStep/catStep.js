@@ -106,7 +106,7 @@ jQuery.fn.catStep = function (obj) {
                 'props': {
                     'style': 'display:none;'
                 },
-                'children': [i + 1 + '']
+                'children': []
             });
         }
         return _continerVirDom;
