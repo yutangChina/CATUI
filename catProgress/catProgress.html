@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>catProgress</title>
+    <link type="text/css" rel="stylesheet" href="../catTable/catTable.css" />
+    <script src="./jquery-1.12.1.min.js"></script>
+    <script src="../catTable/catTable.js"></script>
+    <script src="./catProgress.js"></script>
+
+    <style>
+        .gy-btn {
+            min-width: 74px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            color: #fff;
+        }
+
+        .blueBtn:hover {
+            border-color: #4284D7;
+        }
+
+        .ml10 {
+            margin-left: 10px !important;
+        }
+
+        .blueBtn {
+            display: inline-block;
+            width: 90px;
+            height: 33px;
+            text-align: center;
+            color: rgb(66, 132, 215) !important;
+            font: 14px/33px 微软雅黑;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(115, 174, 248);
+            border-image: initial;
+            background: rgb(247, 251, 255);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">catProgress例子</em>
+        <div class="clear"></div>
+    </h3>
+    <div id="catProgress1" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress2" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress3" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress4" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress5" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress6" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress7" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress8" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress9" style="width:800px;margin-bottom: 8px;">
+    </div>
+    <div id="catProgress10" style="width:800px;margin-bottom: 8px;">
+    </div>
+
+    <script>
+        var progress1 = $('#catProgress1').catProgress({
+            type: 's',
+            size: 's',
+            percent: '10'
+        });
+        $('#catProgress2').catProgress({
+            type: 'w',
+            size: 's',
+            percent: '20'
+        });
+        $('#catProgress3').catProgress({
+            type: 'e',
+            size: 's',
+            percent: '30'
+        });
+        $('#catProgress4').catProgress({
+            type: 's',
+            size: 'm',
+            percent: '40'
+        });
+        $('#catProgress5').catProgress({
+            type: 'w',
+            size: 'm',
+            percent: '50'
+        });
+        $('#catProgress6').catProgress({
+            type: 'e',
+            size: 'm',
+            percent: '60'
+        });
+        $('#catProgress7').catProgress({
+            type: 's',
+            size: 'b',
+            percent: '70'
+        });
+        $('#catProgress8').catProgress({
+            type: 'w',
+            size: 'b',
+            percent: '80'
+        });
+        $('#catProgress9').catProgress({
+            type: 'e',
+            size: 'b',
+            percent: '90'
+        });
+        $('#catProgress10').catProgress({
+            size: 'u',
+            uStyle: {
+                'pStyle': {
+                    height: '24px',
+                    background: '#1959B1'
+                },
+                'bStyle': {
+                    height: '24px',
+                    background: '#A6AFBB'
+                }
+            },
+            percent: '95'
+        });
+    </script>
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">例子代码</em>
+    </h3>
+
+    <div style="border: 1px solid #eee;padding:8px;">
+        <div><code>var progress1 = $('#catProgress1').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 's',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 's',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress2').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 'w',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 's',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress3').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 'e',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 's',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress4').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 's',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'm',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress5').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 'w',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'm',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress6').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 'e',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'm',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress7').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 's',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'b',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress8').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 'w',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'b',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress9').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>type: 'e',</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'b',</code></div>
+        <div>&nbsp;&nbsp;<code> percent: '10'</code></div>
+        <div><code>});</code></div>
+        <div><code>$('#catProgress10').catProgress({</code></div>
+        <div>&nbsp;&nbsp;<code>size: 'u',</code></div>
+        <div>&nbsp;&nbsp;<code>uStyle:{</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>'pStyle': {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> height: '24px',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> background: '#1959B1'</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>},</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>'bStyle': {</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> height: '24px',</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> background: '#A6AFBB'</code></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<code>}</code></div>
+        <div>&nbsp;&nbsp;<code>},</code></div>
+        <div>&nbsp;&nbsp;<code>percent: '10'</code></div>
+        <div><code>});</code></div>
+    </div>
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">参数介绍</em>
+    </h3>
+
+    <div id="paramIntroduce"></div>
+
+    <script>
+        $('#paramIntroduce').catTable({
+            thead: [{
+                'name': '参数',
+                'id': 'name'
+            }, {
+                'name': '介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'size',
+                'desc': "格式：s 小号，m 中等，b 大号，u 自定义"
+            }, {
+                'name': 'type',
+                'desc': "s success; w warning; e error;"
+            }, {
+                'name': 'uStyle',
+                'desc': "自定义的样式，当size == 'u'的时候启用，使用的时候必须是一个对象，里面必须有两个对象:pStyle（进度条背景的样式）与 bStyle（进度的样式），这两个对象里面的key-value，应该是css格式。"
+            }, {
+                'name': 'percent',
+                'desc': "进度 不大于100的数字"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+
+
+
+    <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
+            style="font-size: 14px;">提供的方法(绑定在返回的实例上)</em>
+    </h3>
+
+    <div id="function"></div>
+
+
+    <script>
+        $('#function').catTable({
+            thead: [{
+                'name': '方法名',
+                'id': 'name'
+            }, {
+                'name': '方法介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': 'setPercent(p)',
+                'desc': '设置进度，参数p为不大于100的数'
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
+    <div style="margin-bottom: 36px;"></div>
+</body>
+
+</html>
