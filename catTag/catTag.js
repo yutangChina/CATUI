@@ -1,8 +1,17 @@
 /**
  * catTag v1.0.0
  * Author Tang Yu
- * Date
+ * Date 2018-12-01
  */
+
+ /**
+ * catTag v1.0.1
+ * Author Tang Yu
+ * Date 2018-12-14
+ * 新增:
+ * getAllDiv方法，获取所有生成的div
+ */
+
 jQuery.fn.catTag = function (obj) {
     /**----------------------------参数初始化定义区--------------------------------------------------------------*/
     var tags = []; //tag数据 [{title:'',value:'',icon:'',choose:''},{title:'',value:'',icon:'',choose:''}]
@@ -196,6 +205,12 @@ jQuery.fn.catTag = function (obj) {
      */
     this.getCurrentDiv = function () {
         return _tagContinerDiv[_chooseIndex];
+    }
+    /**
+     * 获取tag生成的所有div
+     */
+    this.getAllDiv = function(){
+        return _tagContinerDiv;
     }
     /**----------------------------初始化执行区----------------------------------------------------------------*/
     /**
