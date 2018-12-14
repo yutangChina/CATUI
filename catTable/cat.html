@@ -53,6 +53,9 @@
         <div class="clear"></div>
     </h3>
     <div id="catTable"></div>
+
+    <div id="catTable1"></div>
+
     <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
             style="font-size: 14px;">例子代码</em>
     </h3>
@@ -108,7 +111,7 @@
                 'desc': "一页显示的数据数量，默认为10"
             }, {
                 'name': 'thead',
-                'desc': "表格的头，数组形式，数组可以是字符串数组，也可以是对象数组"
+                'desc': "表格的头，数组形式，数组可以是字符串数组，也可以是对象数组，当为多层表头时候，格式如下[{display1: '栏目2',id: 'b',children: [{display1: '栏目21',id: 'b1'}, {display1: '栏目22',id: 'b2'}, {display1: '栏目23',id: 'b3'}]}];具体详情可查看mock.js中的head数据格式。多层表头时，数据渲染按多层的最后一层为基准"
             }, {
                 'name': 'thField',
                 'desc': "字符串数组，只能有两个值。当thead为字符串数组时无用，可以不设置；当为thead为对象数组的时候有用。例子：thField:['display','field']，则此时在thead对象数组中每一个对象的display属性将用于渲染为表格头的文字展示，id属性的值将被依次记录(其值就是数据中的字段名)，用于数据渲染时候的取值的顺序。默认为:['name', 'id']"
@@ -167,16 +170,35 @@
             showFooter: false
         });
     </script>
-
-
-
     <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
-            style="font-size: 14px;">下载catTable</em>
+            style="font-size: 14px;">版本迭代</em>
     </h3>
-    <div>
-        <a class="gy-btn blueBtn ml10 fl" href="./catTable.zip">下载</a>
-        <div style="clear:both;"></div>
-    </div>
+    <div id="version"></div>
+
+    <script>
+        $('#version').catTable({
+            thead: [{
+                'name': '版本号',
+                'id': 'name'
+            }, {
+                'name': '版本介绍',
+                'id': 'desc'
+            }],
+            thField: ['name', 'id'],
+            thStyle: [{
+                style: 'min-width:148px;'
+            }],
+            data: [{
+                'name': '1.0.0',
+                'desc': 'catTable的基本功能实现'
+            }, {
+                'name': '1.1.0',
+                'desc': "增加多表头格式，只适用于thead为对象数组类型时，当为多层表头时thStyle不起作用；修复当页面有多个table，只有第一个table的页脚有用的bug"
+            }],
+            pageSize: 10000,
+            showFooter: false
+        });
+    </script>
 
 
     <div style="margin-bottom: 36px;"></div>
@@ -184,6 +206,22 @@
         var cat = $('#catTable').catTable({
             data: queryFromServer, //data,//queryFromServer,
             thead: head,
+            thField: ['display1', 'id'],
+            thStyle: {
+                style: 'background:#f5f5f5'
+            },
+            dataFrom: 'Server',
+            param: {
+                'a': 1,
+                'b': 2
+            },
+            total: 100
+
+        });
+
+        var cat1 = $('#catTable1').catTable({
+            data: queryFromServer, //data,//queryFromServer,
+            thead: head1,
             thField: ['display1', 'id'],
             thStyle: {
                 style: 'background:#f5f5f5'
