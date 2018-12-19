@@ -124,6 +124,9 @@
             }, {
                 'name': 'showFooter',
                 'desc': '是否展示页脚，默认为true。'
+            }, {
+                'name': 'decorate [1.1.0]',
+                'desc': '只在thead为对象数组的时候有效，对于特定列进行渲染。key为需要渲染列的字段名，value为方法，该方法有唯一参数，该参数为此行的数据。可以返回String对象，也可以返回虚拟dom对象（{tagName:"a",props:{},children:[]}。'
             }],
             pageSize: 10000,
             showFooter: false
@@ -193,7 +196,7 @@
                 'desc': 'catTable的基本功能实现'
             }, {
                 'name': '1.1.0',
-                'desc': "增加多表头格式，只适用于thead为对象数组类型时，当为多层表头时thStyle不起作用；修复当页面有多个table，只有第一个table的页脚有用的bug"
+                'desc': "增加多表头格式以及特定列的特殊渲染，只适用于thead为对象数组类型时，当为多层表头时thStyle不起作用；修复当页面有多个table，只有第一个table的页脚有用的bug"
             }],
             pageSize: 10000,
             showFooter: false
@@ -231,7 +234,21 @@
                 'a': 1,
                 'b': 2
             },
-            total: 100
+            total: 100,
+            decorate: {
+                'a': function (rowDate) {
+                    return '<a class=>' + rowDate.a + '渲染' + '</a>';
+                },
+                'b': function (rowDate) {
+                    return {
+                        tagName: 'em',
+                        props: {
+
+                        },
+                        children: [rowDate.b + "VIRDOM"]
+                    }
+                }
+            }
 
         });
     </script>

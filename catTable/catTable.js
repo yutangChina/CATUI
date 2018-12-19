@@ -9,10 +9,6 @@
  * Date 2018-12-14
  * 知识点: 
  * 1.rowspan 行合并; colspan 列合并; 一行还是一行来看
- * 新增功能:
- * 1.新增多层表头的展示
- * 问题修复:
- * 1.修复多个表格的时候，只有第一个表格的分页组件可以使用的bug
  */
 /**
  * 未兼容IE8以下的方法：querySelector
@@ -44,6 +40,9 @@ jQuery.fn.catTable = function (obj) {
     var total = 0; //数据的总条数
     var showFooter = true; //是否展示页脚
 
+    /**   对于特定列的渲染 */
+
+    var decorate = {}; //只在thead为对象数组的时候有效
 
     /**----------------------------配置处理区------------------------------------------------------------------*/
 
@@ -101,7 +100,6 @@ jQuery.fn.catTable = function (obj) {
     if (obj['param'] != undefined) {
         param = obj['param'];
     }
-
     /**
      * 页脚配置的处理
      */
@@ -122,8 +120,10 @@ jQuery.fn.catTable = function (obj) {
     if (obj['showFooter'] != undefined) {
         showFooter = obj['showFooter'];
     }
-
-
+    //装饰对象
+    if (obj['decorate'] != undefined) {
+        decorate = obj['decorate'];
+    }
     /**----------------------------方法区---------------------------------------------------------------------*/
 
     /**
@@ -373,12 +373,27 @@ jQuery.fn.catTable = function (obj) {
             } else {
                 //根据顺序来，_dataShowOrder存储着thead的填充顺序
                 for (var j = 0; j < _dataShowOrder.length; j++) {
+                    var _tempChild = [];
+                    //是否存在于decorate,如果存在则需要进行方法调用的渲染
+                    if (decorate[_dataShowOrder[j]] != undefined) {
+                        var _decObj = decorate[_dataShowOrder[j]].call(this, target);
+                        if (_decObj.__proto__ == String.prototype) {
+                            var _textVirDomArr = _textToVirDom(_decObj);
+                            for (var _i = 0; _i < _textVirDomArr.length; _i++) {
+                                _tempChild.push(_textVirDomArr[_i]);
+                            }
+                        } else if (_decObj.__proto__ == Object.prototype) {
+                            _tempChild.push(_decObj);
+                        }
+                    } else {
+                        _tempChild.push(target[_dataShowOrder[j]]);
+                    }
                     _mainVirDom.children.push({
                         tagName: 'td',
                         props: {
 
                         },
-                        children: [target[_dataShowOrder[j]]]
+                        children: _tempChild
                     })
                 }
             }
@@ -398,16 +413,51 @@ jQuery.fn.catTable = function (obj) {
         }
         var children = obj.children;
         for (var i = 0; i < children.length; i++) {
-            if (children[i] == undefined) {
+            if (children[i] == undefined || children[i] == null) {
                 continue;
             }
-            if (children[i].__proto__ == String.prototype) {
+            if (children[i].__proto__ == String.prototype || children[i].__proto__ == Number.prototype) {
                 ele.appendChild(document.createTextNode(children[i]));
             } else {
                 ele.appendChild(_renderVirDom(children[i]));
             }
         }
         return ele;
+    }
+    /**
+     * 从字符串转为虚拟dom
+     */
+    function _textToVirDom(htmlText) {
+        var _iteration = function (continer, _childDom) {
+            for (var i = 0; i < _childDom.length; i++) {
+                var _tempVirDom = {
+                    'tagName': '',
+                    'props': {},
+                    'children': []
+                };
+                var _tempDom = _childDom[i];
+                _tempVirDom['tagName'] = _tempDom.tagName;
+                var _attr = _tempDom['attributes'];
+                for (var j = 0; j < _attr.length; j++) {
+                    _tempVirDom['props'][_attr[j]['nodeName']] = _attr[j]['nodeValue'];
+                }
+                var _nextChildren = _tempDom.children;
+                if (_nextChildren.length > 0) {
+                    _iteration(_tempVirDom.children, _nextChildren);
+                } else {
+                    if (_tempDom.innerHTML != '') {
+                        _tempVirDom.children.push(_tempDom.innerHTML);
+                    }
+                }
+                continer.push(_tempVirDom);
+            }
+        }
+        var _virDomArr = [];
+        var _div = document.createElement('div');
+        _div.innerHTML = htmlText;
+        var _childDom = _div.children;
+        _iteration(_virDomArr, _childDom);
+        return _virDomArr;
     }
     /**
      * 添加行的点击事件，改变其背景颜色
@@ -554,7 +604,9 @@ jQuery.fn.catTable = function (obj) {
      * 上一页，下一页的时候修改页脚input框中显示的页数
      */
     function _changeInputPageNum() {
-        _targetDiv.querySelector('.input-page-num').value = pageNumber + 1;
+        if (showFooter) {
+            _targetDiv.querySelector('.input-page-num').value = pageNumber + 1;
+        }
     }
     /**
      * 根据数据生成footer的中间主体:1,2,3,4,...,7,9
