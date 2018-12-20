@@ -687,7 +687,11 @@ jQuery.fn.catTable = function (obj) {
                     value: pageNumber + 1
                 },
                 children: ['10']
-            }, '  /' + (Math.ceil(total / Number(pageSize))) + '页']
+            }, {
+                tagName: 'span',
+                props: {},
+                children: ['  /' + (Math.ceil(total / Number(pageSize))) + '页']
+            }]
         }, {
             tagName: 'li',
             props: {
@@ -736,7 +740,7 @@ jQuery.fn.catTable = function (obj) {
         if (p == null || p == undefined) {
             pageNumber = 0;
         } else {
-            if (/^[1-9]+[0-9]*$/.test(p)) {
+            if (!/^[1-9]+[0-9]*$/.test(p)) {
                 throw 'pageNumber must be positive integer! ';
             }
             pageNumber = p;
@@ -751,7 +755,7 @@ jQuery.fn.catTable = function (obj) {
      * 重新设置pageSize
      */
     this.setPageSize = function (p) {
-        if (/^[1-9]+[0-9]*$/.test(p)) {
+        if (!/^[1-9]+[0-9]*$/.test(p)) {
             throw 'pageSize must be positive integer! ';
         }
         pageSize = p;
@@ -760,10 +764,15 @@ jQuery.fn.catTable = function (obj) {
      * 重新设置total
      */
     this.setTotal = function (p) {
-        if (/^[1-9]+[0-9]*$/.test(p)) {
+        if (!/^[1-9]+[0-9]*$/.test(p)) {
             throw 'total must be positive integer! ';
         }
         total = p;
+        //触发分页的重新渲染
+        if (showFooter) {
+            _footerDomTree.children[0].innerHTML = '共 ' + total + ' 条记录'
+            _footerDomTree.children[2].children[1].innerHTML = '  /' + Math.ceil(total / pageSize) + '页'
+        }
     }
     /**
      * 获取当前的pageNumber
