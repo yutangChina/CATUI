@@ -10,6 +10,13 @@
  * 知识点: 
  * 1.rowspan 行合并; colspan 列合并; 一行还是一行来看
  */
+
+
+/**
+ * TODO : children里面非字符串时候渲染错误的问题
+ */
+
+
 /**
  * 未兼容IE8以下的方法：querySelector
  * 
@@ -19,6 +26,7 @@ jQuery.fn.catTable = function (obj) {
     var _tableDomTree = null; //table实际的dom树 内部使用
     var nowIndex = 0; //初始数组起始位置  当dataFrom == Local的时候启用
     var _targetDiv = this[0]; //组件依附的div
+    var _isInit = true; //是否是在进行第一次初始化操作
 
     /**   表格头有关的配置项  **/
     var thStyle = {}; //表格头的渲染格式 可以使对象 表示全都用他，可以使数组分别渲染，为数组的时候数组的长度必须等于thead的个数
@@ -30,12 +38,12 @@ jQuery.fn.catTable = function (obj) {
 
 
     /**   表格数据的配置   **/
-    var dataFrom = 'Local'; //数据来源的方式 默认 Local 1.Local 表示展示直接从data来  2.Server 表示从服务器来
+    var dataFrom = 'Local'; //数据来源的方式 默认 Local 1.Local 表示展示直接从data来  2.Server 表示从服务器来 3.Server-T
     var pageSize = 10; //一页显示的数据数量
     var pageNumber = 0; //从哪一页开始，默认第一页  永远表示当前所在页
     var data = []; //table的数据存储数组
     var param = {}; //参数，当dataFrom为Server的时候使用
-
+    var dataComp = []; //从后台获取到的data的组成 第一个参数表示数据  第二个参数表示总数 在dataFrom == 'Server-T'的时候有效
     /**   页脚的配置     **/
     var total = 0; //数据的总条数
     var showFooter = true; //是否展示页脚
@@ -87,7 +95,7 @@ jQuery.fn.catTable = function (obj) {
         pageNumber = obj['pageNumber'];
     }
     //当数据从服务器端来的时候，data参数必须是方法
-    if (dataFrom == 'Server') {
+    if (dataFrom == 'Server' || dataFrom == 'Server-T') {
         if (obj['data'] == undefined || obj['data'].__proto__ != Function.prototype) {
             throw 'When dataFrom is Server , data must be defined and must be function!';
         }
@@ -103,19 +111,32 @@ jQuery.fn.catTable = function (obj) {
     /**
      * 页脚配置的处理
      */
-    //total参数的处理 当dataFrom == Local的时候默认为data的长度无法修改，当dataFrom == Server的时候必须传入,可以传入方法
-    if (dataFrom == 'Local') {
-        total = data.length;
-    } else {
-        if (obj['total'] == undefined) {
-            throw 'When dataFrom is Server , total must be defined!';
-        }
-        if (obj['total'].__proto__ == Function.prototype) {
-            total = obj['total'].call(this, param);
-        } else {
-            total = obj['total'];
-        }
+    //total参数的处理 当dataFrom == Local的时候默认为data的长度无法修改，
+    //当dataFrom == Server的时候必须传入,可以传入方法
+    //当dataFrom == Server-T的时候可以不传入，从数据那里取
+    switch (dataFrom) {
+        case 'Local':
+            total = data.length;
+            break;
+        case 'Server':
+            if (obj['total'] == undefined) {
+                throw 'When dataFrom is Server , total must be defined!';
+            }
+            if (obj['total'].__proto__ == Function.prototype) {
+                total = obj['total'].call(this, param);
+            } else {
+                total = obj['total'];
+            }
+            break;
+
+        case 'Server-T':
+            if (obj['dataComp'] == undefined) {
+                throw 'When dataFrom is Server-T , dataComp must be defined!';
+            }
+            dataComp = obj['dataComp'];
+            break;
     }
+
     //是否展示页脚
     if (obj['showFooter'] != undefined) {
         showFooter = obj['showFooter'];
@@ -342,6 +363,30 @@ jQuery.fn.catTable = function (obj) {
                 _data = data.call(this, _param);
                 index = 0;
                 break;
+            case 'Server-T':
+                var _param = {
+                    'pageSize': pageSize, //一页显示的数量
+                    'pageNumber': pageNumber //页数
+                };
+                for (var o in param) {
+                    _param[o] = param[o];
+                }
+                var _resl = data.call(this, _param);
+                _data = _resl[dataComp[0]]; //表格数据
+                _total = _resl[dataComp[1]]; //表格的数量
+                //如果数量变化了则需要进行页脚的重新转化
+                if (_total != total) {
+                    //触发分页的重新渲染
+                    if (showFooter) {
+                        if (!_isInit) {
+                            _footerDomTree.children[0].innerHTML = '共 ' + total + ' 条记录'
+                            _footerDomTree.children[2].children[1].innerHTML = '  /' + Math.ceil(total / pageSize) + '页'
+                        }
+                    }
+                }
+                total = _total;
+                index = 0;
+                break;
             default:
                 break;
         }
@@ -373,8 +418,8 @@ jQuery.fn.catTable = function (obj) {
             } else {
                 //根据顺序来，_dataShowOrder存储着thead的填充顺序
                 for (var j = 0; j < _dataShowOrder.length; j++) {
-                    var _tempChild = [];
                     //是否存在于decorate,如果存在则需要进行方法调用的渲染
+                    var _tempChild = [];
                     if (decorate[_dataShowOrder[j]] != undefined) {
                         var _decObj = decorate[_dataShowOrder[j]].call(this, target);
                         if (_decObj.__proto__ == String.prototype) {
@@ -861,6 +906,11 @@ jQuery.fn.catTable = function (obj) {
          */
         _changeInputIndexNum.call(this);
     }
+
+    /**
+     * 将isInit置为false，不在是初始化操作
+     */
+    _isInit = false;
     //_clickFooterIndex.call(this);
     return this;
 }

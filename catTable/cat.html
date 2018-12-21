@@ -96,7 +96,7 @@
             }],
             data: [{
                 'name': 'dataFrom',
-                'desc': '数据来源的方式；1.Local 表示从传入的data中来，2.Server 表示从服务器来；默认 Local '
+                'desc': '数据来源的方式；1.Local 表示从传入的data中来，2.Server 表示从服务器来；3.Server-T 此模式下，total将从后台获取的数据中获得，而无需自己手动进行设置，与dataComp联动存在。默认 Local '
             }, {
                 'name': 'data',
                 'desc': "数据，形式为对象数组，数组中一个对象表示一行；当dataFrom == 'Server'的时候，data必须是一个方法，该方法有唯一形参。"
@@ -127,6 +127,9 @@
             }, {
                 'name': 'decorate [1.1.0]',
                 'desc': '只在thead为对象数组的时候有效，对于特定列进行渲染。key为需要渲染列的字段名，value为方法，该方法有唯一参数，该参数为此行的数据。可以返回String对象，也可以返回虚拟dom对象（{tagName:"a",props:{},children:[]}。'
+            },{
+                'name':'dataComp [1.1.0]',
+                'desc': '数组,此参数在dataFrom == ‘Server-T’下有用，用于确定实际数据与total的key值，其中第一个元素表示获取数据中表格数据的key值，第二个表示获取数据中total的key值'
             }],
             pageSize: 10000,
             showFooter: false
