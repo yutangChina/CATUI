@@ -44,6 +44,7 @@ jQuery.fn.catTable = function (obj) {
     var data = []; //table的数据存储数组
     var param = {}; //参数，当dataFrom为Server的时候使用
     var dataComp = []; //从后台获取到的data的组成 第一个参数表示数据  第二个参数表示总数 在dataFrom == 'Server-T'的时候有效
+    var _currentData = [];//当前页面的数据，内部使用，当dataFrom == local时候会返回整个data。
     /**   页脚的配置     **/
     var total = 0; //数据的总条数
     var showFooter = true; //是否展示页脚
@@ -373,7 +374,7 @@ jQuery.fn.catTable = function (obj) {
                 }
                 var _resl = data.call(this, _param);
                 _data = _resl[dataComp[0]]; //表格数据
-                _total = _resl[dataComp[1]]; //表格的数量
+                _total = Nmuber(_resl[dataComp[1]]); //表格的数量
                 //如果数量变化了则需要进行页脚的重新转化
                 if (_total != total) {
                     //触发分页的重新渲染
@@ -445,6 +446,7 @@ jQuery.fn.catTable = function (obj) {
             _virDom.push(_mainVirDom);
         }
         nowIndex = index + pageSize;
+        _currentData = _data;
         return _virDom;
     }
     /**
@@ -826,6 +828,12 @@ jQuery.fn.catTable = function (obj) {
         return pageNumber;
     }
 
+    /**
+     * 获取当前页的原始数据
+     */
+    this.getCurrentData = function(){
+        return _currentData;
+    }
 
     /**--------------------- 初始化执行区 ---------------------------------------------------------------------*/
     /**
@@ -845,7 +853,9 @@ jQuery.fn.catTable = function (obj) {
      */
     var _dataVirDom = _handleDataToVirDom(nowIndex);
     /**
-     * 页脚的虚拟dom
+     * 页脚的虚拟dom，此操作必须在_handleDataToVirDom执行后才可以进行
+     * 因为dataFrom可能是‘Server-T’类型，此类型下total从后台数据中获取
+     * 只有在total确定的情况下，footer才可以生成
      */
     if (showFooter) {
         var _footerVirDom = _handleFooterToVirDom();
