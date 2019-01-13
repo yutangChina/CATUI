@@ -10,10 +10,35 @@
  * 知识点: 
  * 1.rowspan 行合并; colspan 列合并; 一行还是一行来看
  */
-
-
 /**
- * TODO : children里面非字符串时候渲染错误的问题
+ * HISTORY:
+ * 
+ * Dec 19, 2018
+ * 1.新增decorate参数，用于特定列的自定义渲染
+ * 2.解决内容为数字时候，render函数错误的bug
+ * 3.解决当footer未渲染时候，pagenum改变报错的问题 
+ * 
+ * Dec 20, 2018
+ * 1.修改重设total之后页脚不随之改变的bug
+ * 2.修改数字校验错误的bug
+ * 
+ * Dec 21, 2018
+ * 1.新增dataFrom == ‘Server-T’模式，此模式下，total将从获取的数据中获得，而无需自己手动进行设置
+ * 2.新增 dataComp参数（数组），此参数在dataFrom == ‘Server-T’下有用，
+ * 用于确定实际数据与total的key值，其中第一个元素表示获取数据中表格数据的key值，
+ * 第二个表示获取数据中total的key值
+ * 
+ * Jan 7, 2019
+ * 1.新增 getCurrentData方法，返回当前页的原始数据，当dataFrom为local的时候返回全部原始数据data
+ * 
+ * UNCOMMIT
+ * 1.解决多层表头的时候，表头显示不正确的bug
+ * 2.解决重新渲染页脚的时候total不正确的bug
+ * 3.解决当表格无数据时候，表格展示的问题
+ * 4.解决了当thead为字符串数组时候，表格样式渲染报错的bug
+ * 5.新增noDataHint参数，用于当表格没有数据的时候应该提示的语句，默认值为'暂无表格数据'
+ * 6.使得在多表头的时候thStyle依旧作用
+ * 
  */
 
 
@@ -23,10 +48,11 @@
  */
 jQuery.fn.catTable = function (obj) {
     /**----------------------------参数初始化定义区-------------------------------------------------------------*/
-    var _tableDomTree = null; //table实际的dom树 内部使用
+    var _finalDomTree = null; //t包含able实际的dom树 内部使用
     var nowIndex = 0; //初始数组起始位置  当dataFrom == Local的时候启用
     var _targetDiv = this[0]; //组件依附的div
     var _isInit = true; //是否是在进行第一次初始化操作
+    var noDataHint = '暂无表格数据'; //当表格没有数据的时候应该提示的语句
 
     /**   表格头有关的配置项  **/
     var thStyle = {}; //表格头的渲染格式 可以使对象 表示全都用他，可以使数组分别渲染，为数组的时候数组的长度必须等于thead的个数
@@ -35,6 +61,7 @@ jQuery.fn.catTable = function (obj) {
     var _thshowType = 'String'; //表头显示的格式  两种 1.字符串数组 String 2.对象数组 Object（对象数组通过thField中的字段进行展示与存储）
     var _dataShowOrder = []; //用于给data的数据进行顺序显示,当传入的数据是对象的时候，同时head也应该是对象模式
     var _thStyleType = 'None'; //None 无样式; Single 单个样式; All 统一运用于所有thead;
+    var _baseColspan = 0; //记录表格最基础的表格列数，用于当无数据的时候提示表格行的colspan渲染
 
 
     /**   表格数据的配置   **/
@@ -44,7 +71,7 @@ jQuery.fn.catTable = function (obj) {
     var data = []; //table的数据存储数组
     var param = {}; //参数，当dataFrom为Server的时候使用
     var dataComp = []; //从后台获取到的data的组成 第一个参数表示数据  第二个参数表示总数 在dataFrom == 'Server-T'的时候有效
-    var _currentData = [];//当前页面的数据，内部使用，当dataFrom == local时候会返回整个data。
+    var _currentData = []; //当前页面的数据，内部使用，当dataFrom == local时候会返回整个data。
     /**   页脚的配置     **/
     var total = 0; //数据的总条数
     var showFooter = true; //是否展示页脚
@@ -60,9 +87,9 @@ jQuery.fn.catTable = function (obj) {
     /**
      * 表格头配置信息的处理
      */
-    //表格头信息必须拥有
-    if (obj.thead == undefined || obj.thead.__proto__ != Array.prototype) {
-        throw 'thead must be defined and must be array!';
+    //表格头信息必须拥有，并且数组长度必须大于0
+    if (obj.thead == undefined || obj.thead.__proto__ != Array.prototype || obj.thead.length == 0) {
+        throw 'thead must be defined and must be array and greater than zero!';
     }
     //给原本的表头信息赋值
     thead = obj.thead;
@@ -146,6 +173,11 @@ jQuery.fn.catTable = function (obj) {
     if (obj['decorate'] != undefined) {
         decorate = obj['decorate'];
     }
+
+
+    if (obj['noDataHint'] != undefined) {
+        noDataHint = obj['noDataHint'];
+    }
     /**----------------------------方法区---------------------------------------------------------------------*/
 
     /**
@@ -155,7 +187,6 @@ jQuery.fn.catTable = function (obj) {
         return {
             tagName: 'table', // 节点标签名
             props: { // dom的属性键值对
-                id: 'table1',
                 class: 'cat_table cat_table_hover mt10',
                 style: 'width:100%;',
                 cellspacing: "0",
@@ -188,42 +219,64 @@ jQuery.fn.catTable = function (obj) {
         //当thead为对象的时候，可能是多层表头，要进行相应处理
         if (_thshowType == 'Object') {
             _handleMultiHead(_trArr);
+            //当thead为对象的时候，不管是否是多层表头，基础列数都是_trArr的第一个对象中所有children里面colspan的总和
+            var _cTdArr = _trArr[0].children;
+            for (var i = 0; i < _cTdArr.length; i++) {
+                _baseColspan += _cTdArr[i].props.colspan;
+            }
+        } else {
+            //当thead不为对象数组的时候，基础表头列数应该是thead数组的长度
+            _baseColspan = thead.length;
         }
 
-
-        //_thStyleType样式只对单层表头有效
-        if (_trArr.length == 1) {
-            //一个tr表示是单层表头
-            for (var i = 0; i < _trArr[0].children.length; i++) {
-                var _tempTh = _trArr[0].children[i];
-
-                switch (_thStyleType) {
-                    case 'None':
-                        break;
-                    case 'Single':
-                        if (thStyle[i] != undefined) {
-                            for (var o in thStyle[i]) {
-                                if (_tempTh['props'][o] != undefined) {
-                                    _tempTh['props'][o] += ' ' + thStyle[i][o];
+        //表头样式的渲染，当为多层表头的时候，只渲染colspan为1的表头
+        switch (_thStyleType) {
+            case 'None': //没有样式，则直接跳过
+                break;
+            case 'Single': //数据形式则一个个进行
+                var _thStyleIndex = 0;
+                for (var i = 0; i < _trArr.length; i++) {
+                    var _tempThArr = _trArr[i]['children'];
+                    for (var j = 0; j < _tempThArr.length; j++) {
+                        var _tempTh = _tempThArr[j];
+                        if (_tempTh['props']['colspan'] == undefined || _tempTh['props']['colspan'] == 1) {
+                            var _tempDiv = _tempTh.children[0];
+                            if (thStyle[_thStyleIndex] != undefined) {
+                                for (var o in thStyle[_thStyleIndex]) {
+                                    if (_tempDiv['props'][o] != undefined) {
+                                        _tempDiv['props'][o] += ' ' + thStyle[_thStyleIndex][o];
+                                    } else {
+                                        _tempDiv['props'][o] = thStyle[_thStyleIndex][o];
+                                    }
+                                }
+                                _thStyleIndex++;
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'All': //对象形式则每一个都是一样的样式覆盖
+                for (var i = 0; i < _trArr.length; i++) {
+                    var _tempThArr = _trArr[i]['children'];
+                    for (var j = 0; j < _tempThArr.length; j++) {
+                        var _tempTh = _tempThArr[j];
+                        if (_tempTh['props']['colspan'] == undefined || _tempTh['props']['colspan'] == 1) {
+                            var _tempDiv = _tempTh.children[0];
+                            for (var o in thStyle) {
+                                if (_tempDiv['props'][o] != undefined) {
+                                    _tempDiv['props'][o] += ' ' + thStyle[o];
                                 } else {
-                                    _tempTh['props'][o] = thStyle[i][o];
+                                    _tempDiv['props'][o] = thStyle[o];
                                 }
                             }
+                        }
 
-                        }
-                        break;
-                    case 'All':
-                        for (var o in thStyle) {
-                            if (_tempTh['props'][o] != undefined) {
-                                _tempTh['props'][o] += ' ' + thStyle[o];
-                            } else {
-                                _tempTh['props'][o] = thStyle[o];
-                            }
-                        }
-                        break;
+                    }
                 }
 
-            }
+
+
+                break;
         }
         _headVirDom.children = _trArr;
         return _headVirDom;
@@ -250,7 +303,16 @@ jQuery.fn.catTable = function (obj) {
             for (var i = 0; i < _multiHead.length; i++) {
                 var _tempTh = {
                     tagName: 'th',
-                    children: [_multiHead[i]]
+                    props: {
+                        colspan: 1
+                    },
+                    children: [{
+                        tagName: 'div',
+                        props: {
+
+                        },
+                        children: [_multiHead[i]]
+                    }]
                 };
                 _children.push(_tempTh);
             }
@@ -266,7 +328,13 @@ jQuery.fn.catTable = function (obj) {
                     props: {
                         'catfield': _tempCode
                     },
-                    children: [_tempDisplay]
+                    children: [{
+                        tagName: 'div',
+                        props: {
+
+                        },
+                        children: [_tempDisplay]
+                    }]
                 };
                 //是否有归属
                 if (_belong != null || _belong != undefined) {
@@ -307,6 +375,9 @@ jQuery.fn.catTable = function (obj) {
                 var _catfield = _tempProps['catfield'];
                 //该虚拟dom的父级字段
                 var _belong = _tempProps['belong'];
+                /**
+                 * 判断所占行的数量
+                 */
                 //该字段在_span中是否存在
                 if (_span[_catfield] == undefined) {
                     _span[_catfield] = 1;
@@ -316,10 +387,13 @@ jQuery.fn.catTable = function (obj) {
                     //如果存在则说明已经有下一级了，因此rowspan 为 1
                     _tempProps['rowspan'] = 1;
                 }
+                /**
+                 * 判断所在列的数量
+                 */
                 //其父级字段是否存在
                 if (_belong != undefined) {
                     if (_span[_belong] == undefined) {
-                        _span[_belong] = 1;
+                        _span[_belong] = _span[_catfield];
                     } else {
                         _span[_belong] += _span[_catfield];
                     }
@@ -328,6 +402,21 @@ jQuery.fn.catTable = function (obj) {
                 _tempProps['colspan'] = _span[_catfield];
             }
         }
+    }
+    /**
+     * 用div将表格虚拟dom包裹住并返回
+     * @param {*} tableVirDom 
+     */
+    function _subsumeTableVirDomByDiv(tableVirDom) {
+        return {
+            'tagName': 'div',
+            'props': {
+                class: 'catTable_subsume_div'
+            },
+            children: [
+                tableVirDom
+            ]
+        };
     }
     /**
      * 生成tbody的虚拟dom  <tbody></tbody>
@@ -380,7 +469,7 @@ jQuery.fn.catTable = function (obj) {
                     //触发分页的重新渲染
                     if (showFooter) {
                         if (!_isInit) {
-                            _footerDomTree.children[0].innerHTML = '共 ' + total + ' 条记录'
+                            _footerDomTree.children[0].innerHTML = '共 ' + _total + ' 条记录'
                             _footerDomTree.children[2].children[1].innerHTML = '  /' + Math.ceil(total / pageSize) + '页'
                         }
                     }
@@ -447,6 +536,23 @@ jQuery.fn.catTable = function (obj) {
         }
         nowIndex = index + pageSize;
         _currentData = _data;
+
+        //获取的数据为空，此时需要表格头数据来进行colspan的写入
+        if (_virDom.length == 0) {
+            _virDom.push({
+                tagName: 'tr',
+                props: {
+
+                },
+                children: [{
+                    tagName: 'td',
+                    props: {
+                        colspan: _baseColspan
+                    },
+                    children: [noDataHint]
+                }]
+            })
+        }
         return _virDom;
     }
     /**
@@ -630,7 +736,7 @@ jQuery.fn.catTable = function (obj) {
     //             if ((shouldIndex + Number(pageSize)) != nowIndex) {
     //                 var tempVirDom = _handleDataToVirDom(shouldIndex);
     //                 //获取tbody元素
-    //                 var tbodyDomTree = _tableDomTree.querySelector('tbody');
+    //                 var tbodyDomTree = _finalDomTree.querySelector('tbody');
     //                 //清空tbody元素里面的旧内容
     //                 tbodyDomTree.innerHTML = '';
     //                 //添加新的数据内容
@@ -764,7 +870,7 @@ jQuery.fn.catTable = function (obj) {
         //构建新的数据虚拟dom节点
         var _tempVirDom = _handleDataToVirDom(index);
         //获取tbody元素
-        var _tbodyDomTree = _tableDomTree.querySelector('tbody');
+        var _tbodyDomTree = _finalDomTree.querySelector('tbody');
         //清空tbody元素里面的旧内容
         _tbodyDomTree.innerHTML = '';
         //添加新的数据内容
@@ -831,7 +937,7 @@ jQuery.fn.catTable = function (obj) {
     /**
      * 获取当前页的原始数据
      */
-    this.getCurrentData = function(){
+    this.getData = this.getCurrentData = function () {
         return _currentData;
     }
 
@@ -875,10 +981,13 @@ jQuery.fn.catTable = function (obj) {
      */
     _tableVirDom.children.push(_bodyVirDom);
     /**
-     * 生成实际的整个table
+     * 最后真正的包含表格的虚拟元素
      */
-    _tableDomTree = _renderVirDom(_tableVirDom);
-
+    var _finalVirDom = _subsumeTableVirDomByDiv(_tableVirDom);
+    /**
+     * 生成实际的包含整个table的dom树
+     */
+    _finalDomTree = _renderVirDom(_finalVirDom);
     /**
      * 生成实际的页脚数
      */
@@ -888,7 +997,7 @@ jQuery.fn.catTable = function (obj) {
     /**
      * 向真实的页面DOM中插入表格
      */
-    this.append(_tableDomTree);
+    this.append(_finalDomTree);
     /**
      * 向真实的页面DOM中插入页脚
      */

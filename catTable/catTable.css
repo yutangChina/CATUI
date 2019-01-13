@@ -4,6 +4,15 @@ table {
     border-spacing: 0;
 }
 
+.catTable_subsume_div {
+    width: 100%;
+    overflow: hidden;
+}
+
+.catTable_subsume_div {
+    overflow: auto;
+}
+
 .cat_table {
     border: 1px solid #dcdcdc;
 }

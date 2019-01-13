@@ -130,6 +130,9 @@
             },{
                 'name':'dataComp [1.1.0]',
                 'desc': '数组,此参数在dataFrom == ‘Server-T’下有用，用于确定实际数据与total的key值，其中第一个元素表示获取数据中表格数据的key值，第二个表示获取数据中total的key值'
+            },{
+                'name':'noDataHint [1.1.0]',
+                'desc': '用于当表格没有数据的时候应该提示的语句，默认值为"暂无表格数据"'
             }],
             pageSize: 10000,
             showFooter: false
@@ -202,7 +205,7 @@
                 'desc': 'catTable的基本功能实现'
             }, {
                 'name': '1.1.0',
-                'desc': "增加多表头格式以及特定列的特殊渲染，只适用于thead为对象数组类型时，当为多层表头时thStyle不起作用；修复当页面有多个table，只有第一个table的页脚有用的bug"
+                'desc': "解决bug，完善表格"
             }],
             pageSize: 10000,
             showFooter: false
@@ -230,10 +233,10 @@
 
         var cat1 = $('#catTable1').catTable({
             data: queryFromServer, //data,//queryFromServer,
-            thead: head1,
+            thead: head3,
             thField: ['display1', 'id'],
             thStyle: {
-                style: 'background:#f5f5f5'
+                style: 'background:#f5f5f5;min-width:200px;'
             },
             dataFrom: 'Server',
             param: {
