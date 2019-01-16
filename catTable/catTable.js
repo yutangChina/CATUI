@@ -463,7 +463,7 @@ jQuery.fn.catTable = function (obj) {
                 }
                 var _resl = data.call(this, _param);
                 _data = _resl[dataComp[0]]; //表格数据
-                _total = Nmuber(_resl[dataComp[1]]); //表格的数量
+                _total = Number(_resl[dataComp[1]]); //表格的数量
                 //如果数量变化了则需要进行页脚的重新转化
                 if (_total != total) {
                     //触发分页的重新渲染
