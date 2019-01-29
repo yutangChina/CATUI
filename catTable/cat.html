@@ -49,7 +49,7 @@
 
 <body>
     <h3><span style="width: 3px;height: 14px;background: #4284D7;display: block;margin: 8px 5px 8px 0;float: left;">&nbsp;</span><em
-            style="font-size: 14px;">catTable例子</em>
+            style="font-size: 14px;">catTable例子(第二个表格的代码在该页最后的script中)</em>
         <div class="clear"></div>
     </h3>
     <div id="catTable"></div>
@@ -133,6 +133,9 @@
             },{
                 'name':'noDataHint [1.1.0]',
                 'desc': '用于当表格没有数据的时候应该提示的语句，默认值为"暂无表格数据"'
+            },{
+                'name':'showPageSelect [1.1.0]',
+                'desc':'是否显示页数，默认为true'
             }],
             pageSize: 10000,
             showFooter: false
@@ -230,7 +233,6 @@
             total: 100
 
         });
-
         var cat1 = $('#catTable1').catTable({
             data: queryFromServer, //data,//queryFromServer,
             thead: head3,
@@ -256,6 +258,9 @@
                         },
                         children: [rowDate.b + "VIRDOM"]
                     }
+                },
+                'checkbox':function(){
+                    return '<input type="checkbox" value="1">';
                 }
             }
 

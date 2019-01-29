@@ -55,7 +55,10 @@ var head = [{
 }];
 
 
-var head3 = [{
+var head3 = [ {
+    display1:'<input type="checkbox" value="1">',
+    id:'checkbox'
+},{
     display1: '栏目1',
     id: 'a'
 }, {
@@ -197,7 +200,12 @@ var head3 = [{
     }]
 }];
 
-var head1 = [{
+var head1 = [
+ {
+     display1:'<input type="checkbox" value="1">',
+     id:'checkbox'
+ }, 
+{
     display1: '栏目1',
     id: 'a'
 }, {
@@ -247,4 +255,38 @@ var queryFromServer = function (param) {
         data.push(obj);
     }
     return data;
+}
+
+
+var queryFromServerT = function (param) {
+    // console.log(param);
+    var data = [];
+    var num = param.pageSize * (param.pageNumber + 1);
+    for (var i = 0; i < num; i++) {
+
+
+        // if (param.pageNumber < 1) {
+        //     return data;
+        // }
+
+        var obj = {
+            'a': i + '-1-a-当前实际页：' + (param.pageNumber+1),
+            'b': i + '-2-b-当前实际页：' + (param.pageNumber+1),
+            'b1': i + '-2-b1-当前实际页：' + (param.pageNumber+1),
+            'b2': i + '-2-b2-当前实际页：' + (param.pageNumber+1),
+            'b3': i + '-2-b3-当前实际页：' + (param.pageNumber+1),
+            'b31': i + '-2-b31-当前实际页：' + (param.pageNumber+1),
+            'b32': i + '-2-b32-当前实际页：' + (param.pageNumber+1),
+            'c': i + '-3-c-当前实际页：' + (param.pageNumber+1),
+            'd': i + '-4-d-当前实际页：' + (param.pageNumber+1),
+            'e': i + '-5-e-当前实际页：' + (param.pageNumber+1),
+            'f': i + '-6-f-当前实际页：' + (param.pageNumber+1),
+            'g': i + '-7-g-当前实际页：' + (param.pageNumber+1),
+        }
+        data.push(obj);
+    }
+    return {
+        data: data,
+        total: 10000//Math.ceil(Math.random() * 1000)
+    };
 }

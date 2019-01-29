@@ -4,9 +4,11 @@
  * Date 2018-11-28
  */
 /**
- * catTbale v1.1.0
- * Author Tang Yu
- * Date 2018-12-14
+ * 
+ * 变量命名规则：
+ * 以'_'开始的变量都是内部使用的
+ * 以字母开启的变量都是外部传入的
+ * 
  * 知识点: 
  * 1.rowspan 行合并; colspan 列合并; 一行还是一行来看
  */
@@ -31,7 +33,7 @@
  * Jan 7, 2019
  * 1.新增 getCurrentData方法，返回当前页的原始数据，当dataFrom为local的时候返回全部原始数据data
  * 
- * UNCOMMIT
+ * Jan 13, 2019
  * 1.解决多层表头的时候，表头显示不正确的bug
  * 2.解决重新渲染页脚的时候total不正确的bug
  * 3.解决当表格无数据时候，表格展示的问题
@@ -39,9 +41,12 @@
  * 5.新增noDataHint参数，用于当表格没有数据的时候应该提示的语句，默认值为'暂无表格数据'
  * 6.使得在多表头的时候thStyle依旧作用
  * 
+ * 
+ * 
+ * UNCOMMIT:
+ * 增加页脚中页数显示以及点击功能；新增showPageSelect参数，用于是否展示页脚上的页数，默认为true，在showFooter为true时候才起效果。
+ * 修改表头的解析过程，将展示文字作为html字符串进行解析，即可形成checkbox等形式，其内部逻辑需要自行书写。
  */
-
-
 /**
  * 未兼容IE8以下的方法：querySelector
  * 
@@ -63,26 +68,25 @@ jQuery.fn.catTable = function (obj) {
     var _thStyleType = 'None'; //None 无样式; Single 单个样式; All 统一运用于所有thead;
     var _baseColspan = 0; //记录表格最基础的表格列数，用于当无数据的时候提示表格行的colspan渲染
 
-
     /**   表格数据的配置   **/
     var dataFrom = 'Local'; //数据来源的方式 默认 Local 1.Local 表示展示直接从data来  2.Server 表示从服务器来 3.Server-T
     var pageSize = 10; //一页显示的数据数量
-    var pageNumber = 0; //从哪一页开始，默认第一页  永远表示当前所在页
+    var pageNumber = 0; //从哪一页开始，默认第一页  永远表示当前所在页 从0开始(即实际上的当前页应该为 pageNumber+1)
     var data = []; //table的数据存储数组
     var param = {}; //参数，当dataFrom为Server的时候使用
     var dataComp = []; //从后台获取到的data的组成 第一个参数表示数据  第二个参数表示总数 在dataFrom == 'Server-T'的时候有效
     var _currentData = []; //当前页面的数据，内部使用，当dataFrom == local时候会返回整个data。
+
     /**   页脚的配置     **/
     var total = 0; //数据的总条数
     var showFooter = true; //是否展示页脚
+    var showPageSelect = true; //是否显示页数，默认为true
 
     /**   对于特定列的渲染 */
 
-    var decorate = {}; //只在thead为对象数组的时候有效
+    var decorate = {}; //只在thead为对象数组的时候有效,key-value形式,key为需要渲染列的字段名,value为方法，该方法有唯一参数，该参数为此行的数据。可以返回String对象，也可以返回虚拟dom对象（{tagName:"a",props:{},children:[]}。
 
     /**----------------------------配置处理区------------------------------------------------------------------*/
-
-
 
     /**
      * 表格头配置信息的处理
@@ -156,7 +160,6 @@ jQuery.fn.catTable = function (obj) {
                 total = obj['total'];
             }
             break;
-
         case 'Server-T':
             if (obj['dataComp'] == undefined) {
                 throw 'When dataFrom is Server-T , dataComp must be defined!';
@@ -169,12 +172,17 @@ jQuery.fn.catTable = function (obj) {
     if (obj['showFooter'] != undefined) {
         showFooter = obj['showFooter'];
     }
+
+    //是否展示页脚的选择元素
+    if (obj['showPageSelect'] != undefined) {
+        if (obj['showPageSelect'].__proto__ != Boolean.prototype) throw 'showPageSelect must be type of Boolean!';
+        showPageSelect = obj['showPageSelect'];
+    }
     //装饰对象
     if (obj['decorate'] != undefined) {
         decorate = obj['decorate'];
     }
-
-
+    //无数据时候的提示语
     if (obj['noDataHint'] != undefined) {
         noDataHint = obj['noDataHint'];
     }
@@ -228,7 +236,6 @@ jQuery.fn.catTable = function (obj) {
             //当thead不为对象数组的时候，基础表头列数应该是thead数组的长度
             _baseColspan = thead.length;
         }
-
         //表头样式的渲染，当为多层表头的时候，只渲染colspan为1的表头
         switch (_thStyleType) {
             case 'None': //没有样式，则直接跳过
@@ -273,9 +280,6 @@ jQuery.fn.catTable = function (obj) {
 
                     }
                 }
-
-
-
                 break;
         }
         _headVirDom.children = _trArr;
@@ -288,13 +292,12 @@ jQuery.fn.catTable = function (obj) {
      * @param {*} _level 
      * @param {*} _belong 
      */
+    //TODO
     function _multiHeadToVirDom(_multiHead, _trArr, _level, _belong) {
         if (_trArr[_level] == undefined) {
             _trArr[_level] = {
                 tagName: 'tr',
-                props: {
-
-                },
+                props: {},
                 children: []
             };
         }
@@ -311,7 +314,7 @@ jQuery.fn.catTable = function (obj) {
                         props: {
 
                         },
-                        children: [_multiHead[i]]
+                        children: _textToVirDom(_multiHead[i])
                     }]
                 };
                 _children.push(_tempTh);
@@ -333,7 +336,7 @@ jQuery.fn.catTable = function (obj) {
                         props: {
 
                         },
-                        children: [_tempDisplay]
+                        children: _textToVirDom(_tempDisplay)
                     }]
                 };
                 //是否有归属
@@ -353,7 +356,7 @@ jQuery.fn.catTable = function (obj) {
         }
     }
     /**
-     * 处理对象类型表头，生成单层/多层表头
+     * 处理对象类型表头，生成单层/多层表头，即为表头虚拟dom添加colspan与rowspan的属性
      * @param {*} _trArr 
      */
     function _handleMultiHead(_trArr) {
@@ -432,6 +435,8 @@ jQuery.fn.catTable = function (obj) {
     }
     /**
      * 构造tr,根据数据构造行的虚拟dom数组 [<tr><td><td></tr>,<tr><td><td></tr>,<tr><td><td></tr>]
+     * 内部会根据pageNumber pageSize来进行取值，内部不会进行pageNumber pageSize的赋值，
+     * 因此若两者改变了，需要在此方法调用前进行改变，否则使用的还是原来的值
      * @param {*} data 
      * @param {*} pageSize 
      */
@@ -469,8 +474,8 @@ jQuery.fn.catTable = function (obj) {
                     //触发分页的重新渲染
                     if (showFooter) {
                         if (!_isInit) {
-                            _footerDomTree.children[0].innerHTML = '共 ' + _total + ' 条记录'
-                            _footerDomTree.children[2].children[1].innerHTML = '  /' + Math.ceil(total / pageSize) + '页'
+                            _footerDomTree.querySelector('.catTable-show-total').innerHTML = '共 ' + _total + ' 条记录';
+                            _footerDomTree.querySelector('.catTable-input-decorate-text').innerHTML = '  /' + Math.ceil(_total / pageSize) + '页';
                         }
                     }
                 }
@@ -534,9 +539,10 @@ jQuery.fn.catTable = function (obj) {
             }
             _virDom.push(_mainVirDom);
         }
+        //为nowIndex进行赋值，主要是dataFrom == Local的时候需要使用
         nowIndex = index + pageSize;
+        //为_currentData元素赋值，_currentData表示的是当前的数据
         _currentData = _data;
-
         //获取的数据为空，此时需要表格头数据来进行colspan的写入
         if (_virDom.length == 0) {
             _virDom.push({
@@ -551,7 +557,7 @@ jQuery.fn.catTable = function (obj) {
                     },
                     children: [noDataHint]
                 }]
-            })
+            });
         }
         return _virDom;
     }
@@ -581,6 +587,7 @@ jQuery.fn.catTable = function (obj) {
      * 从字符串转为虚拟dom
      */
     function _textToVirDom(htmlText) {
+        //迭代函数，将实际的dom转化为虚拟dom
         var _iteration = function (continer, _childDom) {
             for (var i = 0; i < _childDom.length; i++) {
                 var _tempVirDom = {
@@ -606,10 +613,19 @@ jQuery.fn.catTable = function (obj) {
             }
         }
         var _virDomArr = [];
+        //div元素
         var _div = document.createElement('div');
+        //将需要解析的htmlText放入div中生成dom片段
         _div.innerHTML = htmlText;
+        //获取div的子元素，即htmlText解析后的dom片段
         var _childDom = _div.children;
-        _iteration(_virDomArr, _childDom);
+        //子元素没有，说明时字符串而不是html字符串，则直接返回一个包含该字符串的数组即可
+        if (_childDom.length == 0) {
+            _virDomArr.push(htmlText);
+        } else {
+            //有，则进行解析
+            _iteration(_virDomArr, _childDom);
+        }
         return _virDomArr;
     }
     /**
@@ -670,11 +686,12 @@ jQuery.fn.catTable = function (obj) {
         //2.不是首页，需要获取之前的数据并进行渲染
         //获取新的数组起始下标
         var _tempIndex = previousIndex < 0 ? 0 : previousIndex;
+        //修改pageNumber到正确的值
         pageNumber--; //减一才是上一步的pageNumber
         //更新table中的tr
         _updateTableTr(_tempIndex);
-        //修改page input中的数据
-        _changeInputPageNum();
+        //页脚的统一变化
+        _footerChangeOverAll(pageNumber);
         return true;
     }
 
@@ -682,7 +699,6 @@ jQuery.fn.catTable = function (obj) {
      * 下一步操作
      */
     function _next() {
-
         //1.判断是否可以继续下一页
         if (dataFrom == 'Local') {
             if (nowIndex >= total) {
@@ -693,11 +709,12 @@ jQuery.fn.catTable = function (obj) {
                 return false;
             }
         }
+        //修改pageNumber到正确的值
         pageNumber++; //加1才是下一步的pageNumber
         //更新table中的tr
         _updateTableTr(nowIndex);
-        //修改page input中的数据
-        _changeInputPageNum();
+        //页脚的统一变化
+        _footerChangeOverAll(pageNumber);
         return true;
     }
     /**
@@ -715,44 +732,120 @@ jQuery.fn.catTable = function (obj) {
                     return false;
                 }
                 //满足则进行跳转
+                //修改pageNumber到正确的值
                 pageNumber = _wirteNum - 1;
                 var _tempIndex = pageNumber * pageSize;
                 //更新table中的tr
                 _updateTableTr(_tempIndex);
-
+                //页脚的变换
+                _footerChangeOverAll(pageNumber);
+            }
+        });
+    }
+    /**
+     * 点击页脚的选择进行页面的跳转
+     * 此时各部分的实际dom已经生成，可以直接调用
+     */
+    function _clickFooterIndex() {
+        //页脚选择点击事件的添加
+        this[0].addEventListener('click', function (e) {
+            var _dom = e.target;
+            //判断是否是事件的触发，只有li里面是数据的才可以出发事件，...是不可以触发事件的
+            if (_dom.className.indexOf('footer-index') > -1 || _dom.parentElement.className.indexOf('footer-index') > -1) {
+                //获取选择的页数
+                var _selectPageIndex = ((_dom.nodeName.toUpperCase() == 'A' ? Number(_dom.text) : Number(_dom.firstElementChild.text)) - 1);
+                //如果选择页数和当前页数一致，则不需要做任何操作 (pageNumber + 1)为实际上的页数
+                if (_selectPageIndex == pageNumber) {
+                    return;
+                }
+                //修改当前的pageNumber使之指向正确的被选择的页数
+                pageNumber = _selectPageIndex;
+                //不一致，则需要进行操作
+                //1.table数据的重新渲染 
+                _updateTableTr(_selectPageIndex * pageSize);
+                //2.页脚的总起变化
+                _footerChangeOverAll(_selectPageIndex);
             }
         });
     }
 
     /**
-     * 点击页脚的size li跳转到对应的页面
+     *
+     * 选择页脚后页脚选择dom的改变
+     * 因为内部要使用到total这个参数，因此必须要在_handleDataToVirDom方法调用后才可以进行调用
+     * @param {*} _currentPageNum 选着的页数（实际页数 - 1 即 pageNumber）
      */
-    // function _clickFooterIndex() {
-    //     this[0].addEventListener('click', function (e) {
-    //         var dom = e.target;
-    //         if (dom.className.indexOf('footer-index') > -1 || dom.parentElement.className.indexOf('footer-index') > -1) {
-    //             var shouldIndex = ((dom.nodeName == 'A' ? Number(dom.text) : Number(dom.firstElementChild.text)) - 1) * Number(pageSize);
+    function _changeFooterNumOfPageDom(_currentPageNum) {
+        //得出总共的页数
+        var _realSize = Math.ceil(total / Number(pageSize));
+        //页脚选择li的list
+        var _selectLiList = _footerDomTree.querySelectorAll('.catTable-footer-select-li');
+        //总页数小于10，则只需要考虑样式的删除与添加
+        if (_realSize < 10) {
+            //循环页脚的list
+            for (var i = 0; i < _selectLiList.length; i++) {
+                //如果有catTable-footer-index-choosed，则剥夺
+                if (_selectLiList[i].className.indexOf('catTable-footer-index-choosed') > -1) {
+                    _selectLiList[i].className = _selectLiList[i].className.replace('catTable-footer-index-choosed', '');
+                }
+                //获取页脚选择li代表的页数(实际页数 - 1)
+                var _selectIndex = Number(_selectLiList[i].querySelector('a').text) - 1;
+                //比较，如果是正确的当前页，则添加catTable-footer-index-choosed样式
+                if (_selectIndex == _currentPageNum) {
+                    _selectLiList[i].className = _selectLiList[i].className + ' catTable-footer-index-choosed';
+                }
+            }
+        } else {
+            //总页数大于等于10，则存在···这个元素，需要进行特别的展示
+            //其实就是页脚select元素内部text的修改，包括其class
+            var _numOfPageList = [];
+            //实际的页数(当前页 + 1 = 认知上的实际页数)
+            var _realCurPageNum = _currentPageNum + 1;
+            //最低不变临界值
+            var _lowNum = 3;
+            //最高不变临界值
+            var _upNum = _realSize - 2;
+            //根据临界值，给_numOfPageList赋值对应的数组实例
+            if (_realCurPageNum < _lowNum || _realCurPageNum > _upNum) {
+                _numOfPageList = [1, 2, 3, '···', (_realSize - 2), (_realSize - 1), _realSize];
+            } else {
+                _numOfPageList = [1, '···', (_realCurPageNum - 1), _realCurPageNum, (_realCurPageNum + 1), '···', _realSize];
+            }
+            //循环list进行页脚选择dom的重新渲染
+            //用实际的dom节点渲染新的数据
+            for (var i = 0; i < _selectLiList.length; i++) {
+                //li  catTable-footer-select-li footer-index 
+                //li.choose  catTable-footer-select-li footer-index  catTable-footer-index-choosed
+                //....  catTable-footer-select-li catTable-footer-ellipsis 
+                if (_numOfPageList[i] == _realCurPageNum) {
+                    _selectLiList[i].className = 'catTable-footer-select-li footer-index  catTable-footer-index-choosed';
+                } else if (_numOfPageList[i] == '···') {
+                    _selectLiList[i].className = 'catTable-footer-select-li catTable-footer-ellipsis';
 
-    //             if ((shouldIndex + Number(pageSize)) != nowIndex) {
-    //                 var tempVirDom = _handleDataToVirDom(shouldIndex);
-    //                 //获取tbody元素
-    //                 var tbodyDomTree = _finalDomTree.querySelector('tbody');
-    //                 //清空tbody元素里面的旧内容
-    //                 tbodyDomTree.innerHTML = '';
-    //                 //添加新的数据内容
-    //                 for (var i = 0; i < tempVirDom.length; i++) {
-    //                     tbodyDomTree.appendChild(_renderVirDom(tempVirDom[i]));
-    //                 }
-    //                 _changeInputPageNum();
-    //                 return true;
-    //             }
-
-
-    //         }
-    //     });
-    // }
-
-
+                } else {
+                    _selectLiList[i].className = 'catTable-footer-select-li footer-index';
+                }
+                _selectLiList[i].querySelector('a').text = _numOfPageList[i];
+            }
+        }
+    }
+    /**
+     * 页脚变化的总起函数
+     * 用于当需要进行页脚改变的时候，直接调用该函数即可，无需在分步调用各变化函数
+     * @param {*} _currentPageNum 当前的页数
+     * 0.footer必须存在
+     * 1.必须要在pageNumber被重新赋值以后
+     * 2.改变:页脚select的变化
+     * 3.改变:input框的变化
+     */
+    function _footerChangeOverAll(_currentPageNum) {
+        if (showFooter) {
+            _changeInputPageNum();
+            if (showPageSelect) {
+                _changeFooterNumOfPageDom(_currentPageNum);
+            }
+        }
+    }
     /**
      * 上一页，下一页的时候修改页脚input框中显示的页数
      */
@@ -762,73 +855,84 @@ jQuery.fn.catTable = function (obj) {
         }
     }
     /**
-     * 根据数据生成footer的中间主体:1,2,3,4,...,7,9
+     * 根据total以及pageSzie生成footer的中间主体，例:1,2,3,...,7,8,9
+     * 不必须考虑 dataFrom的模式，
+     * 因为 _handleDataToVirDom 是在此方法之前执行的，
+     * 此时Servce-T模式下total已经生成了
+     * 中间的页数list固定大小7个(为什么选7个，因为7个展示起来好看)
      */
-    // function _handleFooterDataToVirDomArray() {
-    //     var footerArray = [];
-    //     //实际的页数
-    //     var real_size = Math.ceil(total / Number(pageSize));
-    //     for (var i = 0; i < real_size; i++) {
-    //         var text = i + 1 + '';
-    //         if (i == 4) {
-    //             if (real_size - i < 4) {
-    //                 text = i + 1 + '';
-    //             } else {
-    //                 i = real_size - 3;
-    //                 text = '...';
-    //             }
-    //         }
-    //         footerArray.push({
-    //             tagName: 'li',
-    //             props: {
-    //                 class: 'footer-index'
-    //             },
-    //             children: [{
-    //                 tagName: 'a',
-    //                 props: {
-
-    //                 },
-    //                 children: [text]
-    //             }]
-    //         });
-    //     }
-    //     return footerArray;
-    // }
-    /**
-     * 生成对应的footer虚拟dom
-     */
-    function _handleFooterToVirDom() {
-        var footer = {
-            tagName: 'ul', // 节点标签名
-            props: { // dom的属性键值对
-                class: 'paging mt10 fr',
-            },
-            children: [{
-                tagName: 'span',
-                props: {
-                    class: 'fl',
-                },
-                children: ['共 ' + total + ' 条记录']
-            }, {
+    function _handleFooterNumOfPageVirDom() {
+        var footerArray = [];
+        //实际的页数
+        var _realSize = Math.ceil(total / Number(pageSize));
+        //需要进行渲染的页脚list
+        var _numOfPageList = [];
+        //如果小于等于7则全部展示
+        //如果大于7则中间的一个li为···
+        if (_realSize < 8) {
+            for (var i = 1; i <= _realSize; i++) {
+                _numOfPageList.push(i);
+            }
+        } else {
+            _numOfPageList = [1, 2, 3, '···', (_realSize - 2), (_realSize - 1), _realSize];
+        }
+        //形成页脚选择的虚拟dom数组
+        for (var i = 0; i < _numOfPageList.length; i++) {
+            footerArray.push({
                 tagName: 'li',
                 props: {
-                    class: "first-child"
+                    class: 'catTable-footer-select-li ' + (_numOfPageList[i] == '···' ? 'catTable-footer-ellipsis ' : 'footer-index ') + (i == 0 ? 'catTable-footer-index-choosed' : '')
                 },
                 children: [{
                     tagName: 'a',
                     props: {
 
                     },
-                    children: ['上一页']
+                    children: [_numOfPageList[i]]
                 }]
-            }]
+            });
+        }
+        return footerArray;
+    }
+    /**
+     * 生成对应的footer虚拟dom
+     */
+    function _handleFooterToVirDom() {
+        var _footer = {
+            tagName: 'ul', // 节点标签名
+            props: { // dom的属性键值对
+                class: 'paging mt10 fr',
+            },
+            children: []
         };
-        var footer_children = footer.children;
-        // var footerDataVirDom = _handleFooterDataToVirDomArray();
-        // for (var i = 0; i < footerDataVirDom.length; i++) {
-        //     footer_children.push(footerDataVirDom[i]);
-        // }
-        footer_children.push({
+        var _footer_children = _footer.children;
+        _footer_children.push({
+            tagName: 'span',
+            props: {
+                class: 'fl catTable-show-total',
+            },
+            children: ['共 ' + total + ' 条记录']
+        }, {
+            tagName: 'li',
+            props: {
+                class: "first-child"
+            },
+            children: [{
+                tagName: 'a',
+                props: {
+
+                },
+                children: ['上一页']
+            }]
+        });
+        //是否需要加入页脚选择的虚拟dom
+        if (showPageSelect) {
+            var _numOfPageVirDom = _handleFooterNumOfPageVirDom();
+            for (var i = 0; i < _numOfPageVirDom.length; i++) {
+                _footer_children.push(_numOfPageVirDom[i]);
+            }
+        }
+        _footer_children.push({
             tagName: 'li',
             props: {
                 class: 'plr5'
@@ -842,7 +946,9 @@ jQuery.fn.catTable = function (obj) {
                 children: ['10']
             }, {
                 tagName: 'span',
-                props: {},
+                props: {
+                    class: "catTable-input-decorate-text"
+                },
                 children: ['  /' + (Math.ceil(total / Number(pageSize))) + '页']
             }]
         }, {
@@ -859,7 +965,7 @@ jQuery.fn.catTable = function (obj) {
             }]
         });
 
-        return footer;
+        return _footer;
     }
 
 
@@ -923,8 +1029,8 @@ jQuery.fn.catTable = function (obj) {
         total = p;
         //触发分页的重新渲染
         if (showFooter) {
-            _footerDomTree.children[0].innerHTML = '共 ' + total + ' 条记录'
-            _footerDomTree.children[2].children[1].innerHTML = '  /' + Math.ceil(total / pageSize) + '页'
+            _footerDomTree.querySelector('.catTable-show-total').innerHTML = '共 ' + total + ' 条记录';
+            _footerDomTree.querySelector('.catTable-input-decorate-text').innerHTML = '  /' + Math.ceil(total / pageSize) + '页';
         }
     }
     /**
@@ -1025,11 +1131,18 @@ jQuery.fn.catTable = function (obj) {
          */
         _changeInputIndexNum.call(this);
     }
-
     /**
-     * 将isInit置为false，不在是初始化操作
+     * 如果显示页脚选择，则需要添加对应的事件
+     */
+    if(showFooter){
+        if (showPageSelect) {
+            _clickFooterIndex.call(this);
+        }
+    }
+    
+    /**
+     * 将isInit置为false，不在是初始化操作，用于Server-T模式下，在total改变时候进行的不同操作。
      */
     _isInit = false;
-    //_clickFooterIndex.call(this);
     return this;
 }

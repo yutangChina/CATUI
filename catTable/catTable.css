@@ -110,7 +110,7 @@ button {
 }
 
 .mt5 {
-    margin-top: 5px !important;
+    margin-top: 4px !important;
 }
 
 img,
@@ -133,10 +133,27 @@ textarea {
     font-size: 12px;
     line-height: 18px;
     text-align: center;
+    margin-right: 4px;
 }
 
-.paging li a:hover,
-.paging li a.hover {
-    background: #478ce7;
-    color: #fff;
+.paging li.catTable-footer-select-li:not(.catTable-footer-ellipsis) a:hover,
+.paging li.catTable-footer-select-li:not(.catTable-footer-ellipsis) a.hover {
+    color: #478ce7;
+    background: #eee;
+}
+
+.last-child a:hover,
+.first-child a:hover {
+    background: #eee;
+    color: #478ce7;
+}
+
+.catTable-footer-index-choosed {
+    background: #478ce7 !important;
+    border: 1px solid #478ce7 !important;
+}
+
+.catTable-footer-index-choosed>a {
+    color: #fff !important;
+    background: #478ce7 !important;
 }
